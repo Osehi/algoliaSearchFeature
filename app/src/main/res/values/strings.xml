@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MakeQuickSearch</string>
+    <string name="productItem_title">Tomatoes (Full Basket)</string>
+    <string name="productItem_price">$75,000</string>
+    <string name="mainActivity_keyword">Search</string>
+</resources>
