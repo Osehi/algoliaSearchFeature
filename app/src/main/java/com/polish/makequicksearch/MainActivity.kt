@@ -45,9 +45,7 @@ class MainActivity : AppCompatActivity() {
         myRecyclerView.layoutManager = LinearLayoutManager(this)
         myRecyclerView.adapter = productAdapter
 
-        CoroutineScope(Dispatchers.Main).launch {
-            setup("yam")
-        }
+
 
         binding.mainActivityKeywordEdt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -59,9 +57,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun afterTextChanged(input: Editable?) {
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    setup(input.toString())
-//                }
+                CoroutineScope(Dispatchers.Main).launch {
+                    setup(input.toString())
+                }
                 Log.d(TAG, "text entered: ${input.toString()}")
             }
         })
