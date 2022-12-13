@@ -19,6 +19,8 @@ import com.algolia.search.model.search.Query
 import com.google.gson.GsonBuilder
 import com.polish.makequicksearch.databinding.ActivityMainBinding
 import com.polish.makequicksearch.model.MarketItem
+import com.polish.makequicksearch.model.uimodel.SearchProductImage
+import com.polish.makequicksearch.utils.converToObjectWithGson
 import com.polish.makequicksearch.utils.toFoodItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +45,10 @@ class MainActivity : AppCompatActivity() {
         myRecyclerView.layoutManager = LinearLayoutManager(this)
         myRecyclerView.adapter = productAdapter
 
+        CoroutineScope(Dispatchers.Main).launch {
+            setup("yam")
+        }
+
         binding.mainActivityKeywordEdt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 //
@@ -53,9 +59,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun afterTextChanged(input: Editable?) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    setup(input.toString())
-                }
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    setup(input.toString())
+//                }
                 Log.d(TAG, "text entered: ${input.toString()}")
             }
         })
@@ -64,6 +70,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun setup(query:String) {
+
+        val gson = GsonBuilder()
+            .setLenient()
+            .serializeNulls()
+            .create()
+
         binding.mainActivityProgressBarPb.isVisible = true
         // Connect and authenticate with your Algolia app
         val client = ClientSearch(
@@ -84,12 +96,31 @@ class MainActivity : AppCompatActivity() {
             search(Query(query))
         }
 
-//        Log.d(TAG, "what is inside response: ${response}")
+        Log.d(TAG, "what is inside response: ${response.hits}")
+//        val inString = "[{\"imagePath\":\"https:\\/\\/pricepally-images.s3.us-east-2.amazonaws.com\\/products\\/610cf04c040d6.jpg\",\"imageId\":\"278714118643\"}]"
+//        val output1 = gson.toJson(inString)
+//        Log.d(TAG, "inside output1: ${output1}")
+//        val toObject = gson.fromJson(inString, SearchProductImage::class.java)
+//        Log.d(TAG, "inside this output: ${toObject}")
 
-        val gson = GsonBuilder()
-            .setLenient()
-            .serializeNulls()
-            .create()
+        val contentOfJsonString = response.hits.mapNotNull {
+            gson.toJson(it.json)
+        }
+        // I just saw now that "contentOfJsonString" is a list of string List<String>
+        Log.d(TAG, "what is inside content of json string: ${contentOfJsonString}")
+        // map through list of string and convert it.
+        val transformedOutput = contentOfJsonString.mapNotNull {
+            gson.fromJson(it, MarketItem::class.java)
+        }.toFoodItem()
+
+        Log.d(TAG, "osehi compare the result with SEE THE OUTPUT ${transformedOutput}")
+        Log.d(TAG, "what is productImage: ${transformedOutput[0].productImage}")
+//        Log.d(TAG, "see the conversion of productImage: ${converToObjectWithGson(transformedOutput[0].productImage!!).size}")
+        // this is how gson was used t
+        val data = "[{\"imagePath\":\"https:\\/\\/pricepally-images.s3.us-east-2.amazonaws.com\\/products\\/63199c9656c85.jpg\",\"imageId\":\"817292262159\"}]"
+        val result = converToObjectWithGson(data)
+        Log.d(TAG, "conversion result: ${result[0].imagePath}")
+
 //        Log.d(TAG, "the number of hits is : ${response.nbHits}")
        val output = response.hits.mapNotNull {
            val toJsonString = gson.toJson(it.json)

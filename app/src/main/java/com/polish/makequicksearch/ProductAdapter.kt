@@ -1,5 +1,6 @@
 package com.polish.makequicksearch
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,7 +9,7 @@ import com.polish.makequicksearch.databinding.ProductItemLayoutBinding
 import com.polish.makequicksearch.utils.bindImage
 
 class ProductAdapter(private val productItem: List<com.polish.makequicksearch.model.uimodel.FoodItem>): RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
-
+    private val TAG = "ProductAdapter"
     class ProductViewHolder(binding: ProductItemLayoutBinding): ViewHolder(binding.root) {
         // initialize views
         val productTitle = binding.productItemTitleTv
@@ -18,6 +19,7 @@ class ProductAdapter(private val productItem: List<com.polish.makequicksearch.mo
         fun bind(item: com.polish.makequicksearch.model.uimodel.FoodItem) {
             productTitle.text = item.productTitle
             productPrice.text = item.productPrice
+            Log.d("product", "see the out put: ${item.productImage}")
             item.productImage?.let { bindImage(it, productImage) }
         }
     }
